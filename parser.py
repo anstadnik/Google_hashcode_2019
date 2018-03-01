@@ -37,11 +37,13 @@ def time_needed(car: Car, ride: Ride):
 
 def first_n(ncars, rides: list):
 	# пожалуйста
-	eta_huina = [Ride(0, 0, 42, 42, 0, 100000) for i in range(ncars)]
+	eta_huina = [Ride(0, 0, 100000, 100000, 0, 0) for i in range(ncars)]
 	car = Car(0, 0, 0)
 	for ride in rides:
-		if time_needed(car, ride) < eta_huina[ncars - 1].time_needed:
-			eta_huina.pop(0)
+		print(ride.time_needed)
+		if time_needed(car, ride) < eta_huina[eta_huina.index(max(eta_huina, key=lambda x:x.time_needed))].time_needed:
+			print("hehey")
+			eta_huina.pop(eta_huina.index(max(eta_huina, key=lambda x:x.time_needed)))
 			eta_huina.append(ride)
 	return eta_huina
 
@@ -54,11 +56,7 @@ def very_good_algo(metro):
 			metro.cars[i].row = n.final_row
 			metro.cars[i].col = n.final_col
 			metro.cars[i].time_elapsed += n.time_needed
-			print(metro.cars[i])
 			i += 1
-
-
-
 
 class Metropolis:
 	def __init__(self, nrows, ncols, nvehicles, nrides, bonus, time, rides: list):
@@ -75,22 +73,13 @@ class Metropolis:
 		return "Grid [{}, {}] | Nvehicles: {} | Nrides: {} | Bonus: {} | Time: {}".format(
 		self.nrows, self.ncols, self.nvehicles, self.nrides, self.bonus, self.time)
 
-	def very_good_algo(self):
-		# Init n vehicles (find first rides)
-		# Find new ride for car with the smallest value of time_elapsed
-		# Do while time_counter < time OR cnt_rides < nrides
-		i = 0
-		for n in first_n(self.nvehicles, self.rides):
-			if (n < 99999):
-				self.cars[i]
-
 
 def parser(filename):
 	with open(filename) as f:
 		nrows, ncols, nvehicles, nrides, bonus, nsteps = map(int, f.readline().split())
 		rides = [f.readline().split() for n in range(nrides)]
 		metro = Metropolis(nrows, ncols, nvehicles, nrides, bonus, nsteps, [Ride(*map(int,ride)) for ride in rides])
-		print(metro)
-		[print(ride) for ride in metro.rides]
-		[print(car) for car in metro.cars]
+		# print(metro)
+		# [print(ride) for ride in metro.rides]
+		# [print(car) for car in metro.cars]
 		return metro
