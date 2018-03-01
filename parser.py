@@ -1,5 +1,6 @@
 class Ride:
-	def __init__(self, start_row, start_col, final_row, final_col, start_time, final_time):
+	def __init__(self, ridenumber, start_row, start_col, final_row, final_col, start_time, final_time):
+		self.ride_number = ridenumber
 		self.start_row = start_row
 		self.start_col = start_col
 		self.final_row = final_row
@@ -14,15 +15,17 @@ class Ride:
 
 class Car(object):
 	"""docstring for Car"""
-	def __init__(self, row, col, time_elapsed):
+	def __init__(self, car_number, row, col, time_elapsed):
 		super(Car, self).__init__()
+		self.car_number = car_number
 		self.row = row
 		self.col = col
 		self.time_elapsed = time_elapsed
 		self.rides = []
 
 	def __str__(self):
-		return "[{}, {}] | current time {}".format(self.row, self.col, self.time_elapsed)
+		return "Car [{}, {}] elapsed time {}\nRides:\n{}".format(self.row, self.col, self.time_elapsed,
+		[str(ride) for ride in self.rides])
 
 def manhetten_distance(x1, y1, x2, y2):
 	return abs(x2 - x1) + abs(y2 - y1)
@@ -37,26 +40,25 @@ def time_needed(car: Car, ride: Ride):
 
 def first_n(ncars, rides: list):
 	# пожалуйста
-	eta_huina = [Ride(0, 0, 100000, 100000, 0, 0) for i in range(ncars)]
-	car = Car(0, 0, 0)
-	for ride in rides:
-		print(ride.time_needed)
-		if time_needed(car, ride) < eta_huina[eta_huina.index(max(eta_huina, key=lambda x:x.time_needed))].time_needed:
-			print("hehey")
-			eta_huina.pop(eta_huina.index(max(eta_huina, key=lambda x:x.time_needed)))
-			eta_huina.append(ride)
-	return eta_huina
+	car = Car(0, 0, 0, 0)
+	try_this = sorted(rides, key=lambda ride: time_needed(car, ride))
+	return try_this[:ncars]
 
 
 def very_good_algo(metro):
-	i = 0
-
-	for n in first_n(metro.nvehicles, metro.rides):
-		if (n.time_needed < 99999):
+	while metro.rides:
+		i = 0
+		for n in first_n(metro.nvehicles, metro.rides):
 			metro.cars[i].row = n.final_row
 			metro.cars[i].col = n.final_col
 			metro.cars[i].time_elapsed += n.time_needed
+			metro.cars[i].rides.append(n)
+			metro.rides.remove(n)
+			print(metro.cars[i])
 			i += 1
+		print("rides left:")
+		[print(ride) for ride in metro.rides]
+
 
 class Metropolis:
 	def __init__(self, nrows, ncols, nvehicles, nrides, bonus, time, rides: list):
@@ -67,7 +69,7 @@ class Metropolis:
 		self.bonus = bonus
 		self.time = time
 		self.rides = rides
-		self.cars = [Car(0, 0, 0) for car in range(nvehicles)]
+		self.cars = [Car(i + 1, 0, 0, 0) for i in range(nvehicles)]
 
 	def __str__(self):
 		return "Grid [{}, {}] | Nvehicles: {} | Nrides: {} | Bonus: {} | Time: {}".format(
@@ -78,7 +80,7 @@ def parser(filename):
 	with open(filename) as f:
 		nrows, ncols, nvehicles, nrides, bonus, nsteps = map(int, f.readline().split())
 		rides = [f.readline().split() for n in range(nrides)]
-		metro = Metropolis(nrows, ncols, nvehicles, nrides, bonus, nsteps, [Ride(*map(int,ride)) for ride in rides])
+		metro = Metropolis(nrows, ncols, nvehicles, nrides, bonus, nsteps, [Ride(i, *map(int,ride)) for i, ride in zip(range(nrides), rides)])
 		# print(metro)
 		# [print(ride) for ride in metro.rides]
 		# [print(car) for car in metro.cars]
