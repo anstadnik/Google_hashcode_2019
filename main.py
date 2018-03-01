@@ -1,6 +1,7 @@
 import sys
-from parser import parser
+from parser import parser, very_good_algo, Metropolis
 
 
 if __name__ == '__main__':
-    parser(sys.argv[1])
+	metro = parser(sys.argv[1])
+	very_good_algo(metro)
