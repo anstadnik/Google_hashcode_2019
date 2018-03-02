@@ -44,18 +44,21 @@ def first_n(ncars, rides: list):
 	try_this = sorted(rides, key=lambda ride: time_needed(car, ride))
 	return try_this[:ncars]
 
+def each_car(car, rides: list)->Ride:
+	return sorted(rides, key=lambda ride: time_needed(car, ride))[0]
+
 
 def very_good_algo(metro):
 	while metro.rides:
-		i = 0
-		for n in first_n(metro.nvehicles, metro.rides):
-			metro.cars[i].row = n.final_row
-			metro.cars[i].col = n.final_col
-			metro.cars[i].time_elapsed += n.time_needed
-			metro.cars[i].rides.append(n)
-			metro.rides.remove(n)
-			print(metro.cars[i])
-			i += 1
+		for i in range(metro.nvehicles):
+			if not metro.rides:
+				break
+			best_ride = each_car(metro.cars[i], metro.rides)
+			metro.cars[i].row = best_ride.final_row
+			metro.cars[i].col = best_ride.final_col
+			metro.cars[i].time_elapsed += best_ride.time_needed
+			metro.cars[i].rides.append(best_ride)
+			metro.rides.remove(best_ride)
 		print("rides left:")
 		[print(ride) for ride in metro.rides]
 
@@ -80,7 +83,9 @@ def parser(filename):
 	with open(filename) as f:
 		nrows, ncols, nvehicles, nrides, bonus, nsteps = map(int, f.readline().split())
 		rides = [f.readline().split() for n in range(nrides)]
-		metro = Metropolis(nrows, ncols, nvehicles, nrides, bonus, nsteps, [Ride(i, *map(int,ride)) for i, ride in zip(range(nrides), rides)])
+		print(rides)
+		metro = Metropolis(nrows, ncols, nvehicles, nrides, bonus, nsteps,
+			[Ride(i, *map(int,ride)) for i, ride in zip(range(nrides), rides)])
 		# print(metro)
 		# [print(ride) for ride in metro.rides]
 		# [print(car) for car in metro.cars]
